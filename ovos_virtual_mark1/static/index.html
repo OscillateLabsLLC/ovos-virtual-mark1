@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Mark 1</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <section class="mark1-stage" aria-label="Mycroft Mark 1">
+      <svg id="faceplate" class="mark1-face" role="img" aria-label="Mark 1 faceplate"
+           title="Click the face to press the button, scroll over it for volume"></svg>
+    </section>
+
+    <section class="status">
+      <span id="serial" class="pill off">serial: waiting</span>
+      <span id="bus" class="pill off">bus: not connected</span>
+      <span id="mouth-state" class="pill">mouth: none</span>
+      <span id="eyes-anim" class="pill">eyes: none</span>
+      <span id="brightness" class="pill">eyes level: 30</span>
+      <span id="muted" class="pill hidden">muted</span>
+      <span id="led" class="pill hidden">LED</span>
+      <span id="firmware" class="pill">fw</span>
+      <span class="spacer"></span>
+      <button id="knob-down" class="mini" aria-label="Volume down">−</button>
+      <button id="button" class="mini" aria-label="Press the button" title="Press the button (space)">●</button>
+      <button id="knob-up" class="mini" aria-label="Volume up">+</button>
+    </section>
+    <pre id="last-command" class="last-command"></pre>
+
+    <section id="panel" class="panel offline">
+      <p class="offline-note">Messagebus not connected. These controls publish OVOS bus messages; start OVOS or pass <code>--bus</code>.</p>
+
+      <fieldset>
+        <legend>Eyes</legend>
+        <div class="row">
+          <label>Colour <input type="color" id="eye-color" value="#706569"></label>
+          <span class="swatches" id="swatches" aria-label="Colour presets"></span>
+          <label>Level <input type="range" id="eye-level" min="1" max="30" value="30"> <output id="eye-level-value">30</output></label>
+          <label>Side
+            <select id="eye-side">
+              <option value="b">both</option><option value="l">left</option><option value="r">right</option>
+              <option value="u">up</option><option value="d">down</option><option value="c">cross</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="eye-blink">Blink</button>
+          <button id="eye-narrow">Narrow</button>
+          <button id="eye-look">Look</button>
+          <button id="eye-spin">Spin</button>
+          <button id="eye-timedspin">Spin 3 s</button>
+          <button id="eye-on">On</button>
+          <button id="eye-off">Off</button>
+          <button id="eye-reset">Reset</button>
+          <label>Fill % <input type="number" id="eye-fill" min="0" max="100" value="50" step="10"></label>
+          <label>Volume <input type="number" id="eye-volume" min="0" max="11" value="6"></label>
+          <label>Pixel <input type="number" id="eye-pixel" min="0" max="23" value="0"></label>
+          <button id="eye-setpixel" title="Sets one of the 24 eye LEDs to the colour picked above (enclosure.eyes.setpixel)">Set pixel</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mouth</legend>
+        <div class="row">
+          <input type="text" id="mouth-text" placeholder="Text to scroll" value="HELLO MARK 1">
+          <button id="mouth-text-send">Show text</button>
+          <label>Icon <select id="icon-name"></select></label>
+          <button id="icon-send">Show icon</button>
+        </div>
+        <div class="row">
+          <span class="label">Viseme</span>
+          <span id="visemes" class="viseme-row" title="Firmware ignores visemes over text or an icon, so the panel resets the mouth first"></span>
+        </div>
+        <div class="row">
+          <button id="mouth-talk">Talk</button>
+          <button id="mouth-listen">Listen</button>
+          <button id="mouth-think">Think</button>
+          <button id="mouth-reset">Reset</button>
+          <button id="mouth-events" title="Date and time displays switch mouth animations off; this switches them back on">Re-enable animations</button>
+          <button id="mouth-events-off" title="Stops talk/listen animations following speech and recording (enclosure.mouth.events.deactivate)">Disable animations</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Demos</legend>
+        <div class="row">
+          <input type="text" id="speak-text" placeholder="Something for OVOS to say" value="Hello, I am a virtual Mark One.">
+          <button id="speak-send">Speak</button>
+        </div>
+        <div class="row">
+          <label>Temp <input type="number" id="weather-temp" value="72" style="width: 5em"></label>
+          <label>Sky
+            <select id="weather-code">
+              <option value="0">sunny</option><option value="1">partly cloudy</option><option value="2">cloudy</option>
+              <option value="3">light rain</option><option value="4">raining</option><option value="5">stormy</option>
+              <option value="6">snowing</option><option value="7">wind / mist</option>
+            </select>
+          </label>
+          <button id="demo-weather" title="Through the bus and the PHAL plugin (icons broken until upstream #55 lands)">Weather</button>
+          <button id="demo-weather-direct" title="Straight to the virtual Arduino with the classic 8x8 icon">Weather (direct)</button>
+          <button id="demo-date" title="Shows today's date for ten seconds; mouth animations are off meanwhile">Date</button>
+          <button id="demo-time" title="Shows the time for five seconds; mouth animations are off meanwhile">Time</button>
+          <button id="demo-stop">Stop</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>System and lifecycle</legend>
+        <div class="row">
+          <button id="sys-sleep" title="recognizer_loop:sleep &rarr; the listener stops transcribing until Wake; eyes dim in steps, then look down">Sleep</button>
+          <button id="sys-wake" title="recognizer_loop:wake_up &rarr; the listener wakes and announces mycroft.awoken; eyes reset, blink, brightness restored">Wake</button>
+          <button id="sys-no-internet" title="enclosure.notify.no_internet &rarr; warning icon">No internet</button>
+          <button id="sys-reset" title="enclosure.reset &rarr; eyes and mouth back to the started state">Enclosure reset</button>
+          <button id="sys-mute" title="enclosure.system.mute &rarr; the board LED comes on (muted pill)">Mute</button>
+          <button id="sys-unmute" title="enclosure.system.unmute">Unmute</button>
+          <label>Blinks <input type="number" id="sys-blink-times" min="1" max="10" value="3"></label>
+          <button id="sys-blink" title="enclosure.system.blink &rarr; the board LED flashes (LED pill)">Blink LED</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="direct">
+        <legend>Raw serial (bypasses the bus)</legend>
+        <div class="row">
+          <input type="text" id="serial-line" placeholder="eyes.look=l" value="mouth.text=DIRECT">
+          <button id="serial-send">Send to Arduino</button>
+        </div>
+      </fieldset>
+    </section>
+  </main>
+  <script src="/static/faceplate.js"></script>
+  <script src="/static/panel.js"></script>
+</body>
+</html>

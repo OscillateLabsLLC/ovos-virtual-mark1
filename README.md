@@ -32,12 +32,15 @@ approximation:
   including its quirks such as the boot spin emptying the ring before a single pixel
   chases around it, and `mouth.faketalk` resting on frame 0.
 - Every received line is echoed back as `Command: ...`, `version` is answered with
-  `Mycroft Mark 1 v1.4.2`, and a connect sends the boot banner the way the Arduino's
-  auto-reset does on a real unit.
+  `Mycroft Mark 1 v1.4.2`, and a connect sends the boot banner a quarter second later,
+  the way the Arduino's DTR auto-reset and bootloader pause do on a real unit. The delay
+  also matters because pyserial's socket transport discards anything received while the
+  port is being opened.
 - The GUI's top button sends `mycroft.stop`; the knob sends `volume.up` / `volume.down`.
 
-Not emulated yet: the long-press hardware menu, the hardware self test, and the on-board
-LED's blocking delays (the LED is shown non-blocking instead).
+Not emulated yet: the long-press hardware menu and the hardware self test. The on-board
+LED (`system.blink`) is tracked non-blocking and shown as a status pill; on real hardware
+it is inside the case.
 
 ## Quick start
 
@@ -86,14 +89,66 @@ python -c "from ovos_mark1.faceplate.animations import ParticleBox; ParticleBox(
 modern plugins do not, so the mouth rests on the talk shape during speech. Pair the
 faceplate with a fake viseme generator if you want it to move.
 
+## Control panel
+
+Below the faceplate the page has a control panel. Every control publishes a message on
+the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a skill:
+
+- **Eyes**: colour, level (brightness), blink, narrow, look with a side, spin, timed spin,
+  on, off, reset, fill percentage, volume, and setting a single pixel to the picked colour.
+- **Mouth**: scrolling text, the seven viseme shapes, a stock icon from `ovos-mark1-utils`,
+  and the talk, listen, think, and reset animations. The firmware ignores a viseme while
+  text or an icon is showing, so the viseme buttons reset the mouth first in that case.
+- **Demos**: `speak` an utterance through TTS, the weather layout with a sky condition,
+  date, time, and `mycroft.stop`. "Weather (direct)" sends the same display straight to
+  the virtual Arduino with the classic 8x8 icon, because the plugin's own weather path
+  sends an icon too large for the firmware (ovos-PHAL-plugin-mk1 issue #55).
+- **System and lifecycle**: the messages core and the listener emit around the
+  enclosure rather than at it. Sleep (`recognizer_loop:sleep`) really puts the listener
+  to sleep, so speech is not transcribed until Wake; the plugin dims the eyes in steps
+  and looks down. Wake (`recognizer_loop:wake_up`) wakes the listener, which announces
+  `mycroft.awoken`, and the plugin resets, blinks and restores the level. No internet
+  shows the warning icon, Enclosure reset restores eyes and mouth, Mute and Unmute drive
+  the board LED, and Blink LED flashes it a chosen number of times.
+
+The panel is a producer in the terms of
+[ovos-ui-enclosure-protocol](https://github.com/OpenVoiceOS/ovos-ui-enclosure-protocol):
+it publishes the `enclosure.*` messages with the data keys that contract lists, and
+the lifecycle messages under their canonical `ovos.*` topics from `ovos-spec-tools`
+(`ovos.listener.sleep`, `ovos.utterance.speak`, `ovos.stop`), which the bus bridges to
+the legacy `recognizer_loop:*` and `mycroft.*` names for older consumers. The listener
+side of that protocol is the PHAL plugin, not this emulator: the virtual Arduino sits
+below it and speaks the firmware's serial protocol.
+
+Two plugin behaviours to know about. The date and time displays switch mouth animations
+off while they are up (ten and five seconds) and the plugin blocks for that long, so
+talk, listen and think are ignored meanwhile; the "Re-enable animations" button publishes
+`enclosure.mouth.events.activate` if they get stuck, and "Disable animations" publishes
+the deactivate counterpart. And `enclosure.mouth.smile` does
+nothing on any Mark 1: firmware 1.4.2 has no smile handler, its bitmap is commented out.
+- **Raw serial**: a line such as `eyes.look=l` fed straight to the virtual Arduino,
+  bypassing the bus. Useful when OVOS is not running.
+
+The bus link defaults to `ws://127.0.0.1:8181/core`; change it with `--bus` or disable
+it with `--no-bus`. The status row shows whether the bus and the PHAL serial link are up.
+
+### Restart order
+
+The PHAL plugin does not reconnect if the emulator restarts: its serial reader logs
+`read failed: socket disconnected` in a loop until PHAL itself is restarted. Start the
+emulator first, then PHAL. The same reader behaviour, a retry loop with no backoff or
+port reopen, is what a real Mark 1 shows when its UART hiccups.
+
 ## Options
 
 ```
-ovos-virtual-mark1 [--host 127.0.0.1] [--serial-port 5555] [--http-port 8765] [-v]
+ovos-virtual-mark1 [--host 127.0.0.1] [--serial-port 5555] [--http-port 8765]
+                   [--bus ws://127.0.0.1:8181/core | --no-bus] [-v]
 ```
 
 `GET /state` returns the current faceplate as JSON. The websocket at `/ws` streams it on
-every change and accepts `{"type": "button"}` and `{"type": "knob", "direction": "up"|"down"}`.
+every change and accepts `{"type": "button"}`, `{"type": "knob", "direction": "up"|"down"}`,
+`{"type": "serial", "line": "..."}` and `{"type": "bus", "msg_type": "...", "data": {...}}`.
 
 ## Geometry notes
 
@@ -118,6 +173,12 @@ uv run ovos-virtual-mark1 -v
 git clone https://github.com/MycroftAI/enclosure-mark1
 just port-tables ./enclosure-mark1
 ```
+
+## Credits
+
+The faceplate's vector styling, the silver rim, dark glass, mic grille, ring tracks and
+LED glow, follows Timon's Mark 1 artwork for the OVOS installer wizard, used with thanks.
+The firmware tables are derived from Mycroft AI's Apache-2.0 licensed enclosure firmware.
 
 ## License
 
