@@ -1,18 +1,19 @@
 "use strict";
 
-// Geometry of the Mark 1 front plate in canvas units. The mouth is 32x8 LEDs
-// below two 12-LED NeoPixel rings. Firmware pixels 0-11 are the ring it calls
-// RIGHT and 12-23 the ring it calls LEFT; we draw them on the viewer's right
-// and left respectively (change RING_X to flip).
+// Geometry of the Mark 1 front plate in canvas units, proportioned from the
+// product photo: the two 12-LED NeoPixel rings flank the 32x8 mouth on one
+// horizontal line, ring diameter about 1.5x the matrix height. Firmware
+// pixels 0-11 are the ring it calls RIGHT and 12-23 the ring it calls LEFT;
+// we draw them on the viewer's right and left (change RING_X to flip).
 const MOUTH_COLS = 32;
 const MOUTH_ROWS = 8;
-const MOUTH_PITCH = 16;
-const MOUTH_ORIGIN = { x: 72, y: 190 };
-const MOUTH_LED_RADIUS = 6;
-const RING_X = [480, 160];
-const RING_Y = 100;
-const RING_RADIUS = 48;
-const EYE_LED_RADIUS = 9;
+const MOUTH_PITCH = 10;
+const MOUTH_ORIGIN = { x: 165, y: 45 };
+const MOUTH_LED_RADIUS = 3.6;
+const RING_X = [584, 56];
+const RING_Y = 80;
+const RING_RADIUS = 56;
+const EYE_LED_RADIUS = 7;
 const RING_SIZE = 12;
 const TOP_ANGLE_DEG = 90;
 const STEP_ANGLE_DEG = 360 / RING_SIZE;
