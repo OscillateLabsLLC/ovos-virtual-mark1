@@ -96,8 +96,9 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
 
 - **Eyes**: colour, level (brightness), blink, narrow, look with a side, spin, timed spin,
   on, off, reset, fill percentage, and volume.
-- **Mouth**: scrolling text, a viseme shape, a stock icon from `ovos-mark1-utils`, and the
-  talk, listen, think, smile, and reset animations.
+- **Mouth**: scrolling text, the seven viseme shapes, a stock icon from `ovos-mark1-utils`,
+  and the talk, listen, think, and reset animations. The firmware ignores a viseme while
+  text or an icon is showing, so the viseme buttons reset the mouth first in that case.
 - **Demos**: `speak` an utterance through TTS, the weather layout with a sky condition,
   date, time, and `mycroft.stop`. "Weather (direct)" sends the same display straight to
   the virtual Arduino with the classic 8x8 icon, because the plugin's own weather path

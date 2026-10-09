@@ -32,7 +32,11 @@ const RESET_SETTLE_MS = 60;
 const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
+const VISEMES = ["0 wide open", "1 pursed", "2 open", "3 narrow lips", "4 closed", "5 parted", "6 barely open"];
+const STATIC_MOUTH_STATES = new Set(["text", "icon"]);
+
 const $ = (id) => document.getElementById(id);
+let mouthState = "none";
 
 function publish(msgType, data = {}) {
   window.faceplateSend({ type: "bus", msg_type: msgType, data });
@@ -94,11 +98,27 @@ function bindEyes() {
   for (const [id, fn] of Object.entries(actions)) $(id).addEventListener("click", fn);
 }
 
+// The firmware refuses a viseme while text or an icon is showing (MycroftMouth::viseme),
+// so clear the mouth first in that case, then send the shape once the reset has landed.
+function showViseme(code) {
+  if (STATIC_MOUTH_STATES.has(mouthState)) {
+    publish("enclosure.mouth.reset");
+    setTimeout(() => publish("enclosure.mouth.viseme", { code }), RESET_SETTLE_MS * 2);
+  } else {
+    publish("enclosure.mouth.viseme", { code });
+  }
+}
+
 function bindMouth() {
   const sendText = () => publish("enclosure.mouth.text", { text: $("mouth-text").value });
   $("mouth-text-send").addEventListener("click", sendText);
   $("mouth-text").addEventListener("keydown", (e) => { if (e.key === "Enter") sendText(); });
-  $("viseme").addEventListener("change", (e) => publish("enclosure.mouth.viseme", { code: e.target.value }));
+  VISEMES.forEach((label, code) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.addEventListener("click", () => showViseme(String(code)));
+    $("visemes").appendChild(b);
+  });
   $("icon-send").addEventListener("click", () =>
     publish("enclosure.mouth.display", { img_code: ICONS[$("icon-name").value], xOffset: 0, yOffset: 0, clearPrev: "true" }));
   const actions = {
@@ -142,6 +162,7 @@ function bindDemos() {
 }
 
 window.updatePanel = (state) => {
+  mouthState = state.mouth_state;
   const bus = $("bus");
   bus.textContent = state.bus_connected ? "bus: connected" : "bus: not connected";
   bus.className = "pill " + (state.bus_connected ? "on" : "off");

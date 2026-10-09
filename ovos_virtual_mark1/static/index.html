@@ -74,15 +74,12 @@
         <div class="row">
           <input type="text" id="mouth-text" placeholder="Text to scroll" value="HELLO MARK 1">
           <button id="mouth-text-send">Show text</button>
-          <label>Viseme
-            <select id="viseme">
-              <option value="0">0 wide open</option><option value="1">1 pursed</option><option value="2">2 open</option>
-              <option value="3">3 narrow lips</option><option value="4" selected>4 closed</option>
-              <option value="5">5 parted</option><option value="6">6 barely open</option>
-            </select>
-          </label>
           <label>Icon <select id="icon-name"></select></label>
           <button id="icon-send">Show icon</button>
+        </div>
+        <div class="row">
+          <span class="label">Viseme</span>
+          <span id="visemes" class="viseme-row" title="Firmware ignores visemes over text or an icon, so the panel resets the mouth first"></span>
         </div>
         <div class="row">
           <button id="mouth-talk">Talk</button>

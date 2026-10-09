@@ -219,3 +219,6 @@ button.mini:active, button.mini.pressed { background: var(--accent); color: #111
 .swatches { display: inline-flex; gap: 6px; }
 .panel button.swatch { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 2px solid #3a3c45; }
 .panel button.swatch:hover { border-color: var(--accent); }
+
+.viseme-row { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.panel .label { font-size: 13px; }
