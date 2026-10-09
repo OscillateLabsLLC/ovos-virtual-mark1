@@ -104,11 +104,12 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
   the virtual Arduino with the classic 8x8 icon, because the plugin's own weather path
   sends an icon too large for the firmware (ovos-PHAL-plugin-mk1 issue #55).
 - **System and lifecycle**: the messages core and the listener emit around the
-  enclosure rather than at it. Sleep (`recognizer_loop:sleep`) dims the eyes in steps and
-  looks down, Wake (`mycroft.awoken`) resets, blinks and restores the level, No internet
+  enclosure rather than at it. Sleep (`recognizer_loop:sleep`) really puts the listener
+  to sleep, so speech is not transcribed until Wake; the plugin dims the eyes in steps
+  and looks down. Wake (`recognizer_loop:wake_up`) wakes the listener, which announces
+  `mycroft.awoken`, and the plugin resets, blinks and restores the level. No internet
   shows the warning icon, Enclosure reset restores eyes and mouth, Mute and Unmute drive
-  the board LED, and Blink LED flashes it a chosen number of times. Publishing these
-  only animates the faceplate; they do not put the listener to sleep or wake it.
+  the board LED, and Blink LED flashes it a chosen number of times.
 
 Two plugin behaviours to know about. The date and time displays switch mouth animations
 off while they are up (ten and five seconds) and the plugin blocks for that long, so

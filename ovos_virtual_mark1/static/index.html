@@ -109,8 +109,8 @@
       <fieldset>
         <legend>System and lifecycle</legend>
         <div class="row">
-          <button id="sys-sleep" title="recognizer_loop:sleep &rarr; eyes dim in steps, then look down">Sleep</button>
-          <button id="sys-wake" title="mycroft.awoken &rarr; eyes reset, blink, brightness restored">Wake</button>
+          <button id="sys-sleep" title="recognizer_loop:sleep &rarr; the listener stops transcribing until Wake; eyes dim in steps, then look down">Sleep</button>
+          <button id="sys-wake" title="recognizer_loop:wake_up &rarr; the listener wakes and announces mycroft.awoken; eyes reset, blink, brightness restored">Wake</button>
           <button id="sys-no-internet" title="enclosure.notify.no_internet &rarr; warning icon">No internet</button>
           <button id="sys-reset" title="enclosure.reset &rarr; eyes and mouth back to the started state">Enclosure reset</button>
           <button id="sys-mute" title="enclosure.system.mute &rarr; the board LED comes on (muted pill)">Mute</button>

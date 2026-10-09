@@ -163,11 +163,13 @@ function bindDemos() {
   $("serial-line").addEventListener("keydown", (e) => { if (e.key === "Enter") sendSerial(); });
 }
 
-// Lifecycle messages that core, the listener, and skills emit; the plugin turns each into a serial sequence.
+// Lifecycle messages. Sleep really puts the listener to sleep (it binds
+// SpecMessage.LISTENER_SLEEP); Wake asks the listener to wake, and the listener
+// then announces mycroft.awoken, which the plugin animates.
 function bindSystem() {
   const actions = {
     "sys-sleep": () => publish("recognizer_loop:sleep"),
-    "sys-wake": () => publish("mycroft.awoken"),
+    "sys-wake": () => publish("recognizer_loop:wake_up"),
     "sys-no-internet": () => publish("enclosure.notify.no_internet"),
     "sys-reset": () => publish("enclosure.reset"),
     "sys-mute": () => publish("enclosure.system.mute"),
