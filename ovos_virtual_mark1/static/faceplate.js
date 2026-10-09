@@ -19,16 +19,24 @@ const TOP_ANGLE_DEG = 90;
 const STEP_ANGLE_DEG = 360 / RING_SIZE;
 const MAX_BRIGHTNESS = 30;
 
+// Diffusion through the smoked acrylic: a wide soft halo under a slightly
+// blurred copy of the crisp LEDs, then a dark tint so unlit LEDs almost vanish.
+const DIFFUSION = { haloBlurPx: 7, haloAlpha: 0.85, ledBlurPx: 1.1, ledAlpha: 0.9, tint: "rgba(4, 4, 8, 0.22)" };
+
 const COLORS = {
-  plate: "#0d0d10",
-  mouthOff: "#1a1a1f",
-  mouthOn: "#f4f1e8",
-  eyeOff: "#17171b",
+  plate: "#07070a",
+  mouthOff: "#121216",
+  mouthOn: "#f6f3ea",
+  eyeOff: "#101014",
 };
 
 const canvas = document.getElementById("faceplate");
 const ctx = canvas.getContext("2d");
-let latest = null;
+const ledLayer = document.createElement("canvas");
+ledLayer.width = canvas.width;
+ledLayer.height = canvas.height;
+const led = ledLayer.getContext("2d");
+const supportsFilter = "filter" in led;
 
 function eyeCenter(index) {
   const ring = Math.floor(index / RING_SIZE);
@@ -45,40 +53,56 @@ function rgbCss([r, g, b], factor) {
   return `rgb(${Math.round(r * factor)}, ${Math.round(g * factor)}, ${Math.round(b * factor)})`;
 }
 
-function dot(x, y, radius, color, glow) {
-  ctx.beginPath();
-  ctx.arc(x, y, radius, 0, Math.PI * 2);
-  ctx.shadowBlur = glow ? radius * 2.5 : 0;
-  ctx.shadowColor = glow ? color : "transparent";
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.shadowBlur = 0;
+function dot(g, x, y, radius, color) {
+  g.beginPath();
+  g.arc(x, y, radius, 0, Math.PI * 2);
+  g.fillStyle = color;
+  g.fill();
 }
 
-function drawMouth(rows) {
+function drawMouth(g, rows) {
   for (let y = 0; y < MOUTH_ROWS; y++) {
     for (let x = 0; x < MOUTH_COLS; x++) {
       const lit = rows[y][x] === "1";
-      dot(MOUTH_ORIGIN.x + x * MOUTH_PITCH, MOUTH_ORIGIN.y + y * MOUTH_PITCH, MOUTH_LED_RADIUS,
-        lit ? COLORS.mouthOn : COLORS.mouthOff, lit);
+      dot(g, MOUTH_ORIGIN.x + x * MOUTH_PITCH, MOUTH_ORIGIN.y + y * MOUTH_PITCH, MOUTH_LED_RADIUS,
+        lit ? COLORS.mouthOn : COLORS.mouthOff);
     }
   }
 }
 
-function drawEyes(pixels, level) {
+function drawEyes(g, pixels, level) {
   const factor = brightnessFactor(level);
   pixels.forEach((rgb, index) => {
     const lit = rgb.some((c) => c > 0);
     const { x, y } = eyeCenter(index);
-    dot(x, y, EYE_LED_RADIUS, lit ? rgbCss(rgb, factor) : COLORS.eyeOff, lit);
+    dot(g, x, y, EYE_LED_RADIUS, lit ? rgbCss(rgb, factor) : COLORS.eyeOff);
   });
 }
 
-function render(state) {
+function composite() {
+  ctx.filter = "none";
+  ctx.globalAlpha = 1;
   ctx.fillStyle = COLORS.plate;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  drawEyes(state.eyes, state.brightness);
-  drawMouth(state.mouth);
+  if (supportsFilter) {
+    ctx.filter = `blur(${DIFFUSION.haloBlurPx}px)`;
+    ctx.globalAlpha = DIFFUSION.haloAlpha;
+    ctx.drawImage(ledLayer, 0, 0);
+    ctx.filter = `blur(${DIFFUSION.ledBlurPx}px)`;
+  }
+  ctx.globalAlpha = DIFFUSION.ledAlpha;
+  ctx.drawImage(ledLayer, 0, 0);
+  ctx.filter = "none";
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = DIFFUSION.tint;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function render(state) {
+  led.clearRect(0, 0, ledLayer.width, ledLayer.height);
+  drawEyes(led, state.eyes, state.brightness);
+  drawMouth(led, state.mouth);
+  composite();
 }
 
 function setPill(id, text, cls) {
@@ -103,9 +127,9 @@ function connect() {
   const proto = location.protocol === "https:" ? "wss" : "ws";
   const ws = new WebSocket(`${proto}://${location.host}/ws`);
   ws.onmessage = (event) => {
-    latest = JSON.parse(event.data);
-    render(latest);
-    updateStatus(latest);
+    const state = JSON.parse(event.data);
+    render(state);
+    updateStatus(state);
   };
   ws.onclose = () => {
     setPill("serial", "GUI disconnected, retrying", "off");
@@ -120,27 +144,31 @@ function send(event) {
   if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(event));
 }
 
-let knobAngle = 0;
+let knobOffset = 0;
 function turnKnob(up) {
-  knobAngle += up ? 30 : -30;
-  document.querySelector(".knob-face").style.transform = `rotate(${knobAngle}deg)`;
+  knobOffset += up ? 4 : -4;
+  document.querySelector(".knob-face").style.backgroundPosition = `${knobOffset}px 0`;
   send({ type: "knob", direction: up ? "up" : "down" });
 }
 
 function pressButton() {
-  const el = document.getElementById("button");
-  el.classList.add("pressed");
-  setTimeout(() => el.classList.remove("pressed"), 120);
+  for (const id of ["knob", "button"]) {
+    const el = document.getElementById(id);
+    el.classList.add("pressed");
+    setTimeout(() => el.classList.remove("pressed"), 120);
+  }
   send({ type: "button" });
 }
 
-document.getElementById("button").addEventListener("click", pressButton);
-document.getElementById("knob-up").addEventListener("click", () => turnKnob(true));
-document.getElementById("knob-down").addEventListener("click", () => turnKnob(false));
-document.getElementById("knob").addEventListener("wheel", (e) => {
+const knob = document.getElementById("knob");
+knob.addEventListener("click", pressButton);
+knob.addEventListener("wheel", (e) => {
   e.preventDefault();
   turnKnob(e.deltaY < 0);
 }, { passive: false });
+document.getElementById("button").addEventListener("click", pressButton);
+document.getElementById("knob-up").addEventListener("click", () => turnKnob(true));
+document.getElementById("knob-down").addEventListener("click", () => turnKnob(false));
 document.addEventListener("keydown", (e) => {
   if (e.target.tagName === "BUTTON" && e.key === " ") return;
   if (e.key === " ") { e.preventDefault(); pressButton(); }
