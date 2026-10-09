@@ -134,7 +134,7 @@ function bindMouth() {
 }
 
 function bindDemos() {
-  const speak = () => publish("speak", { utterance: $("speak-text").value });
+  const speak = () => publish("ovos.utterance.speak", { utterance: $("speak-text").value });
   $("speak-send").addEventListener("click", speak);
   $("speak-text").addEventListener("keydown", (e) => { if (e.key === "Enter") speak(); });
   $("demo-weather").addEventListener("click", () =>
@@ -154,7 +154,7 @@ function bindDemos() {
     const text = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
     publish("ovos.mk1.display_time", { text });
   });
-  $("demo-stop").addEventListener("click", () => publish("mycroft.stop"));
+  $("demo-stop").addEventListener("click", () => publish("ovos.stop"));
   const sendSerial = () => {
     window.faceplateSend({ type: "serial", line: $("serial-line").value });
     $("serial-line").select();
@@ -163,12 +163,14 @@ function bindDemos() {
   $("serial-line").addEventListener("keydown", (e) => { if (e.key === "Enter") sendSerial(); });
 }
 
-// Lifecycle messages. Sleep really puts the listener to sleep (it binds
-// SpecMessage.LISTENER_SLEEP); Wake asks the listener to wake, and the listener
-// then announces mycroft.awoken, which the plugin animates.
+// Lifecycle messages, published under the canonical ovos.* topics from
+// ovos-spec-tools; the bus bridges them to the legacy recognizer_loop:* names
+// for older consumers. Sleep really puts the listener to sleep; Wake asks it to
+// wake (no canonical name yet), and it then announces ovos.listener.awoken,
+// which the plugin animates.
 function bindSystem() {
   const actions = {
-    "sys-sleep": () => publish("recognizer_loop:sleep"),
+    "sys-sleep": () => publish("ovos.listener.sleep"),
     "sys-wake": () => publish("recognizer_loop:wake_up"),
     "sys-no-internet": () => publish("enclosure.notify.no_internet"),
     "sys-reset": () => publish("enclosure.reset"),

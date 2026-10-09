@@ -111,6 +111,15 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
   shows the warning icon, Enclosure reset restores eyes and mouth, Mute and Unmute drive
   the board LED, and Blink LED flashes it a chosen number of times.
 
+The panel is a producer in the terms of
+[ovos-ui-enclosure-protocol](https://github.com/OpenVoiceOS/ovos-ui-enclosure-protocol):
+it publishes the `enclosure.*` messages with the data keys that contract lists, and
+the lifecycle messages under their canonical `ovos.*` topics from `ovos-spec-tools`
+(`ovos.listener.sleep`, `ovos.utterance.speak`, `ovos.stop`), which the bus bridges to
+the legacy `recognizer_loop:*` and `mycroft.*` names for older consumers. The listener
+side of that protocol is the PHAL plugin, not this emulator: the virtual Arduino sits
+below it and speaks the firmware's serial protocol.
+
 Two plugin behaviours to know about. The date and time displays switch mouth animations
 off while they are up (ten and five seconds) and the plugin blocks for that long, so
 talk, listen and think are ignored meanwhile; the "Re-enable animations" button publishes
