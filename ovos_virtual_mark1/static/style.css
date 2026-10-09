@@ -1,0 +1,110 @@
+:root {
+  --bg: #15161a;
+  --panel: #0d0d10;
+  --text: #d8d6cf;
+  --muted: #7d7b74;
+  --accent: #e8c45a;
+  --pill: #23242a;
+  --pill-on: #2f5f3a;
+  --pill-warn: #6b2f2f;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.device {
+  background: var(--panel);
+  border-radius: 28px;
+  padding: 24px 24px 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  color: var(--text);
+  background: #2a2b31;
+  border-radius: 999px;
+  font-size: 18px;
+  width: 44px;
+  height: 44px;
+}
+
+button:active, button.pressed { background: var(--accent); color: #111; }
+
+.top-button { width: 56px; height: 56px; font-size: 22px; }
+
+.knob { display: flex; align-items: center; gap: 10px; user-select: none; }
+
+.knob-face {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #4a4b52, #1d1e23);
+  position: relative;
+  transition: transform 80ms ease-out;
+}
+
+.knob-face::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 4px;
+  height: 14px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pill {
+  background: var(--pill);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.pill.on { background: var(--pill-on); }
+.pill.off { background: var(--pill-warn); }
+.pill.hidden { display: none; }
+
+.last-command {
+  margin-top: 12px;
+  color: var(--muted);
+  font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

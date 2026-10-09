@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Mark 1</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <section class="device">
+      <canvas id="faceplate" width="640" height="340" aria-label="Mark 1 faceplate"></canvas>
+      <div class="controls">
+        <button id="button" class="top-button" title="Top button (space)">●</button>
+        <div class="knob" id="knob" title="Volume knob: scroll, drag, or arrow keys">
+          <button id="knob-down" aria-label="Volume down">−</button>
+          <span class="knob-face"></span>
+          <button id="knob-up" aria-label="Volume up">+</button>
+        </div>
+      </div>
+    </section>
+    <section class="status">
+      <span id="serial" class="pill off">serial: waiting</span>
+      <span id="mouth-state" class="pill">mouth: none</span>
+      <span id="eyes-anim" class="pill">eyes: none</span>
+      <span id="brightness" class="pill">eyes level: 30</span>
+      <span id="muted" class="pill hidden">muted</span>
+      <span id="led" class="pill hidden">LED</span>
+      <span id="firmware" class="pill">fw</span>
+    </section>
+    <pre id="last-command" class="last-command"></pre>
+  </main>
+  <script src="/static/faceplate.js"></script>
+</body>
+</html>
