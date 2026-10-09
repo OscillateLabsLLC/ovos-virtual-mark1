@@ -1,4 +1,3 @@
-import asyncio
 import json
 
 import pytest
@@ -7,6 +6,7 @@ from aiohttp.test_utils import TestClient, TestServer
 
 from ovos_virtual_mark1.app import Faceplate, build_parser
 from ovos_virtual_mark1.bus import BusLink
+from tests.conftest import wait_for
 
 
 class FakeBus:
@@ -24,14 +24,6 @@ class FakeBus:
             if msg.type is WSMsgType.TEXT:
                 self.received.append(json.loads(msg.data))
         return ws
-
-
-async def wait_for(predicate, timeout: float = 3.0) -> None:
-    for _ in range(int(timeout / 0.02)):
-        if predicate():
-            return
-        await asyncio.sleep(0.02)
-    raise AssertionError("condition not met in time")
 
 
 @pytest.fixture

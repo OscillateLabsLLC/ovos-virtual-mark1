@@ -8,6 +8,7 @@ import serial
 from ovos_virtual_mark1.app import Faceplate
 from ovos_virtual_mark1.arduino import BANNER, VERSION_REPLY, VirtualArduino
 from ovos_virtual_mark1.serial_server import SerialServer
+from tests.conftest import wait_for
 
 
 async def open_pyserial(port: int) -> serial.Serial:
@@ -37,8 +38,7 @@ async def test_banner_echo_and_version_over_pyserial(server):
         assert await readline(ser) == (VERSION_REPLY + "\r\n").encode()
         ser.write(b"mouth.text=HELLO\n")
         assert await readline(ser) == b"Command: mouth.text=HELLO\r\n"
-        await asyncio.sleep(0.05)
-        assert server.arduino.mouth.text == "HELLO"
+        await wait_for(lambda: server.arduino.mouth.text == "HELLO")
     finally:
         ser.close()
 
@@ -60,11 +60,7 @@ async def test_client_count_tracks_connections(server):
     await readline(ser)
     assert server.client_count == 1
     ser.close()
-    for _ in range(20):
-        await asyncio.sleep(0.05)
-        if server.client_count == 0:
-            break
-    assert server.client_count == 0
+    await wait_for(lambda: server.client_count == 0)
 
 
 async def test_output_without_client_is_dropped(server):
@@ -81,9 +77,12 @@ async def test_faceplate_step_runs_both_servers():
         await readline(ser)
         assert faceplate.state()["serial_connected"] is True
         ser.write(b"eyes.color=255\n")
-        await asyncio.sleep(0.05)
+        # The boot spin is still running and darkens individual pixels, so check the
+        # colour register the command sets rather than any one pixel.
+        await wait_for(lambda: faceplate.arduino.eyes.color == 255)
         await faceplate.step()
-        assert faceplate.state()["eyes"][0] == [0, 0, 255]
+        assert faceplate.state()["last_command"] == "eyes.color=255"
+        assert faceplate.state()["eyes"].count([0, 0, 255]) >= 20
         ser.close()
     finally:
         await faceplate.stop()

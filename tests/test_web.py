@@ -1,9 +1,8 @@
-import asyncio
-
 import pytest
 from aiohttp.test_utils import TestClient, TestServer
 
 from ovos_virtual_mark1.app import Faceplate, build_parser
+from tests.conftest import wait_for
 
 
 @pytest.fixture
@@ -31,10 +30,7 @@ async def test_websocket_receives_state_and_sends_inputs(client):
     await ws.send_json({"type": "button"})
     await ws.send_json({"type": "knob", "direction": "down"})
     await ws.send_json({"type": "bogus"})
-    for _ in range(20):
-        await asyncio.sleep(0.01)
-        if len(faceplate.arduino.outbox) >= 2:
-            break
+    await wait_for(lambda: len(faceplate.arduino.outbox) >= 2)
     assert faceplate.arduino.outbox == ["mycroft.stop", "volume.down"]
     faceplate.arduino.handle_line("eyes.color=255")
     await faceplate.web.broadcast_if_changed()
