@@ -8,9 +8,9 @@
 const MOUTH_COLS = 32;
 const MOUTH_ROWS = 8;
 const MOUTH_PITCH = 10;
-const MOUTH_ORIGIN = { x: 165, y: 45 };
+const MOUTH_ORIGIN = { x: 181, y: 45 };
 const MOUTH_LED_RADIUS = 3.6;
-const RING_X = [584, 56];
+const RING_X = [600, 72];
 const RING_Y = 80;
 const RING_RADIUS = 56;
 const EYE_LED_RADIUS = 7;
