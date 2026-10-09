@@ -177,3 +177,41 @@ button.mini:active, button.mini.pressed { background: var(--accent); color: #111
   .mark1 { aspect-ratio: 2.6 / 1; }
   .knob { height: 26px; top: -16px; }
 }
+
+/* ---- control panel --------------------------------------------------- */
+
+.panel { margin-top: 24px; }
+
+.panel fieldset {
+  border: 1px solid #33353d;
+  border-radius: 12px;
+  padding: 10px 14px 14px;
+  margin: 0 0 12px;
+}
+
+.panel legend { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 6px; }
+
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 8px; }
+
+.panel label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+
+.panel button, .panel input[type="text"], .panel input[type="number"], .panel select {
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--pill);
+  border: 1px solid #3a3c45;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.panel input[type="text"] { min-width: 16em; flex: 1; }
+.panel button { cursor: pointer; }
+.panel button:hover { border-color: var(--accent); }
+.panel button:active { background: var(--accent); color: #111; }
+.panel input[type="color"] { width: 36px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer; }
+.panel input[type="range"] { width: 140px; }
+
+.offline-note { display: none; color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+.panel.offline .offline-note { display: block; }
+.panel.offline fieldset:not(.direct) { opacity: 0.45; }

@@ -22,8 +22,10 @@
       <div class="foot foot-left"></div>
       <div class="foot foot-right"></div>
     </section>
+
     <section class="status">
       <span id="serial" class="pill off">serial: waiting</span>
+      <span id="bus" class="pill off">bus: not connected</span>
       <span id="mouth-state" class="pill">mouth: none</span>
       <span id="eyes-anim" class="pill">eyes: none</span>
       <span id="brightness" class="pill">eyes level: 30</span>
@@ -36,7 +38,86 @@
       <button id="knob-up" class="mini" aria-label="Volume up">+</button>
     </section>
     <pre id="last-command" class="last-command"></pre>
+
+    <section id="panel" class="panel offline">
+      <p class="offline-note">Messagebus not connected. These controls publish OVOS bus messages; start OVOS or pass <code>--bus</code>.</p>
+
+      <fieldset>
+        <legend>Eyes</legend>
+        <div class="row">
+          <label>Colour <input type="color" id="eye-color" value="#706569"></label>
+          <label>Level <input type="range" id="eye-level" min="1" max="30" value="30"> <output id="eye-level-value">30</output></label>
+          <label>Side
+            <select id="eye-side">
+              <option value="b">both</option><option value="l">left</option><option value="r">right</option>
+              <option value="u">up</option><option value="d">down</option><option value="c">cross</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="eye-blink">Blink</button>
+          <button id="eye-narrow">Narrow</button>
+          <button id="eye-look">Look</button>
+          <button id="eye-spin">Spin</button>
+          <button id="eye-timedspin">Spin 3 s</button>
+          <button id="eye-on">On</button>
+          <button id="eye-off">Off</button>
+          <button id="eye-reset">Reset</button>
+          <label>Fill % <input type="number" id="eye-fill" min="0" max="100" value="50" step="10"></label>
+          <label>Volume <input type="number" id="eye-volume" min="0" max="11" value="6"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mouth</legend>
+        <div class="row">
+          <input type="text" id="mouth-text" placeholder="Text to scroll" value="HELLO MARK 1">
+          <button id="mouth-text-send">Show text</button>
+          <label>Viseme
+            <select id="viseme">
+              <option value="0">0 wide open</option><option value="1">1 pursed</option><option value="2">2 open</option>
+              <option value="3">3 narrow lips</option><option value="4" selected>4 closed</option>
+              <option value="5">5 parted</option><option value="6">6 barely open</option>
+            </select>
+          </label>
+          <label>Icon <select id="icon-name"></select></label>
+          <button id="icon-send">Show icon</button>
+        </div>
+        <div class="row">
+          <button id="mouth-talk">Talk</button>
+          <button id="mouth-listen">Listen</button>
+          <button id="mouth-think">Think</button>
+          <button id="mouth-smile">Smile</button>
+          <button id="mouth-reset">Reset</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Demos</legend>
+        <div class="row">
+          <input type="text" id="speak-text" placeholder="Something for OVOS to say" value="Hello, I am a virtual Mark One.">
+          <button id="speak-send">Speak</button>
+        </div>
+        <div class="row">
+          <label>Temp <input type="number" id="weather-temp" value="72" style="width: 5em"></label>
+          <button id="demo-weather">Weather</button>
+          <button id="demo-date">Date</button>
+          <button id="demo-time">Time</button>
+          <button id="demo-blink-led">Blink LED</button>
+          <button id="demo-stop">Stop</button>
+        </div>
+      </fieldset>
+
+      <fieldset class="direct">
+        <legend>Raw serial (bypasses the bus)</legend>
+        <div class="row">
+          <input type="text" id="serial-line" placeholder="eyes.look=l" value="mouth.text=DIRECT">
+          <button id="serial-send">Send to Arduino</button>
+        </div>
+      </fieldset>
+    </section>
   </main>
   <script src="/static/faceplate.js"></script>
+  <script src="/static/panel.js"></script>
 </body>
 </html>

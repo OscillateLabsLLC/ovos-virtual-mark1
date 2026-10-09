@@ -8,6 +8,7 @@ from pathlib import Path
 from aiohttp import WSMsgType, web
 
 from ovos_virtual_mark1.arduino import VirtualArduino
+from ovos_virtual_mark1.bus import BusLink
 
 LOG = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
@@ -15,9 +16,17 @@ StateProvider = Callable[[], dict]
 
 
 class WebServer:
-    def __init__(self, state: StateProvider, arduino: VirtualArduino, host: str = "127.0.0.1", port: int = 8765) -> None:
+    def __init__(
+        self,
+        state: StateProvider,
+        arduino: VirtualArduino,
+        host: str = "127.0.0.1",
+        port: int = 8765,
+        bus: BusLink | None = None,
+    ) -> None:
         self.state = state
         self.arduino = arduino
+        self.bus = bus
         self.host = host
         self.port = port
         self._sockets: set[web.WebSocketResponse] = set()
@@ -65,16 +74,30 @@ class WebServer:
         try:
             async for msg in ws:
                 if msg.type is WSMsgType.TEXT:
-                    self.handle_input(json.loads(msg.data))
+                    await self.handle_input(json.loads(msg.data))
         finally:
             self._sockets.discard(ws)
         return ws
 
-    def handle_input(self, event: dict) -> None:
+    async def handle_input(self, event: dict) -> None:
         kind = event.get("type")
         if kind == "button":
             self.arduino.press_button()
         elif kind == "knob":
             self.arduino.turn_knob(clockwise=event.get("direction") == "up")
+        elif kind == "serial":
+            self.arduino.handle_line(str(event.get("line", "")))
+        elif kind == "bus":
+            await self._publish(event)
         else:
             LOG.warning("unknown GUI event %r", event)
+
+    async def _publish(self, event: dict) -> None:
+        msg_type = event.get("msg_type")
+        if not msg_type or not isinstance(event.get("data", {}), dict):
+            LOG.warning("malformed bus event %r", event)
+            return
+        if self.bus is None:
+            LOG.warning("no bus configured; dropping %s", msg_type)
+            return
+        await self.bus.emit(msg_type, event.get("data") or {})

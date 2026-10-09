@@ -130,6 +130,7 @@ function connect() {
     const state = JSON.parse(event.data);
     render(state);
     updateStatus(state);
+    if (window.updatePanel) window.updatePanel(state);
   };
   ws.onclose = () => {
     setPill("serial", "GUI disconnected, retrying", "off");
@@ -143,6 +144,7 @@ let socket = connect();
 function send(event) {
   if (socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify(event));
 }
+window.faceplateSend = send;
 
 let knobOffset = 0;
 function turnKnob(up) {

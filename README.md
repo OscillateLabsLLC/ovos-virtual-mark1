@@ -86,14 +86,40 @@ python -c "from ovos_mark1.faceplate.animations import ParticleBox; ParticleBox(
 modern plugins do not, so the mouth rests on the talk shape during speech. Pair the
 faceplate with a fake viseme generator if you want it to move.
 
+## Control panel
+
+Below the faceplate the page has a control panel. Every control publishes a message on
+the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a skill:
+
+- **Eyes**: colour, level (brightness), blink, narrow, look with a side, spin, timed spin,
+  on, off, reset, fill percentage, and volume.
+- **Mouth**: scrolling text, a viseme shape, a stock icon from `ovos-mark1-utils`, and the
+  talk, listen, think, smile, and reset animations.
+- **Demos**: `speak` an utterance through TTS, the weather layout, date and time, the
+  on-board LED, and `mycroft.stop`.
+- **Raw serial**: a line such as `eyes.look=l` fed straight to the virtual Arduino,
+  bypassing the bus. Useful when OVOS is not running.
+
+The bus link defaults to `ws://127.0.0.1:8181/core`; change it with `--bus` or disable
+it with `--no-bus`. The status row shows whether the bus and the PHAL serial link are up.
+
+### Restart order
+
+The PHAL plugin does not reconnect if the emulator restarts: its serial reader logs
+`read failed: socket disconnected` in a loop until PHAL itself is restarted. Start the
+emulator first, then PHAL. The same reader behaviour, a retry loop with no backoff or
+port reopen, is what a real Mark 1 shows when its UART hiccups.
+
 ## Options
 
 ```
-ovos-virtual-mark1 [--host 127.0.0.1] [--serial-port 5555] [--http-port 8765] [-v]
+ovos-virtual-mark1 [--host 127.0.0.1] [--serial-port 5555] [--http-port 8765]
+                   [--bus ws://127.0.0.1:8181/core | --no-bus] [-v]
 ```
 
 `GET /state` returns the current faceplate as JSON. The websocket at `/ws` streams it on
-every change and accepts `{"type": "button"}` and `{"type": "knob", "direction": "up"|"down"}`.
+every change and accepts `{"type": "button"}`, `{"type": "knob", "direction": "up"|"down"}`,
+`{"type": "serial", "line": "..."}` and `{"type": "bus", "msg_type": "...", "data": {...}}`.
 
 ## Geometry notes
 
