@@ -215,3 +215,7 @@ button.mini:active, button.mini.pressed { background: var(--accent); color: #111
 .offline-note { display: none; color: var(--muted); font-size: 13px; margin: 0 0 10px; }
 .panel.offline .offline-note { display: block; }
 .panel.offline fieldset:not(.direct) { opacity: 0.45; }
+
+.swatches { display: inline-flex; gap: 6px; }
+.panel button.swatch { width: 22px; height: 22px; padding: 0; border-radius: 50%; border: 2px solid #3a3c45; }
+.panel button.swatch:hover { border-color: var(--accent); }

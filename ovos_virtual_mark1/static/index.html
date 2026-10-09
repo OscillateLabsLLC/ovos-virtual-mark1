@@ -46,6 +46,7 @@
         <legend>Eyes</legend>
         <div class="row">
           <label>Colour <input type="color" id="eye-color" value="#706569"></label>
+          <span class="swatches" id="swatches" aria-label="Colour presets"></span>
           <label>Level <input type="range" id="eye-level" min="1" max="30" value="30"> <output id="eye-level-value">30</output></label>
           <label>Side
             <select id="eye-side">
@@ -87,8 +88,8 @@
           <button id="mouth-talk">Talk</button>
           <button id="mouth-listen">Listen</button>
           <button id="mouth-think">Think</button>
-          <button id="mouth-smile">Smile</button>
           <button id="mouth-reset">Reset</button>
+          <button id="mouth-events" title="Date and time displays switch mouth animations off; this switches them back on">Re-enable animations</button>
         </div>
       </fieldset>
 
@@ -100,10 +101,16 @@
         </div>
         <div class="row">
           <label>Temp <input type="number" id="weather-temp" value="72" style="width: 5em"></label>
+          <label>Sky
+            <select id="weather-code">
+              <option value="0">sunny</option><option value="1">partly cloudy</option><option value="2">cloudy</option>
+              <option value="3">light rain</option><option value="4">raining</option><option value="5">stormy</option>
+              <option value="6">snowing</option><option value="7">wind / mist</option>
+            </select>
+          </label>
           <button id="demo-weather">Weather</button>
-          <button id="demo-date">Date</button>
-          <button id="demo-time">Time</button>
-          <button id="demo-blink-led">Blink LED</button>
+          <button id="demo-date" title="Shows today's date for ten seconds; mouth animations are off meanwhile">Date</button>
+          <button id="demo-time" title="Shows the time for five seconds; mouth animations are off meanwhile">Time</button>
           <button id="demo-stop">Stop</button>
         </div>
       </fieldset>

@@ -19,8 +19,13 @@ const ICONS = {
   "Arrow left": "aIAAAAAAAAAAAAAAAAAAAAABIDMHOOGNKLIDIDIDIDIDIDAAAAAAAAAAAAAAAAAAAA",
 };
 
-// The classic Mycroft weather skill "sunny" icon: 8x8, drawn left of the temperature.
-const SUN_ICON = "IICEIBMDNLMDIBCEAA";
+// Eye colour presets: the plugin's boot blue, the firmware default tan, and a spread of hues.
+const SWATCHES = {
+  "OVOS blue": "#0000ff", "Mark 1 tan": "#706569", White: "#ffffff", Green: "#00c850",
+  Amber: "#ffa000", Red: "#ff2020", Purple: "#a000ff", Cyan: "#00d0ff",
+};
+const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 const $ = (id) => document.getElementById(id);
 
@@ -44,6 +49,21 @@ function fillIcons() {
     option.value = name;
     option.textContent = name;
     select.appendChild(option);
+  }
+}
+
+function fillSwatches() {
+  const holder = $("swatches");
+  for (const [name, hex] of Object.entries(SWATCHES)) {
+    const b = document.createElement("button");
+    b.className = "swatch";
+    b.title = name;
+    b.style.background = hex;
+    b.addEventListener("click", () => {
+      $("eye-color").value = hex;
+      publish("enclosure.eyes.color", hexToRgb(hex));
+    });
+    holder.appendChild(b);
   }
 }
 
@@ -80,8 +100,8 @@ function bindMouth() {
     "mouth-talk": () => publish("enclosure.mouth.talk"),
     "mouth-listen": () => publish("enclosure.mouth.listen"),
     "mouth-think": () => publish("enclosure.mouth.think"),
-    "mouth-smile": () => publish("enclosure.mouth.smile"),
     "mouth-reset": () => publish("enclosure.mouth.reset"),
+    "mouth-events": () => publish("enclosure.mouth.events.activate"),
   };
   for (const [id, fn] of Object.entries(actions)) $(id).addEventListener("click", fn);
 }
@@ -91,14 +111,16 @@ function bindDemos() {
   $("speak-send").addEventListener("click", speak);
   $("speak-text").addEventListener("keydown", (e) => { if (e.key === "Enter") speak(); });
   $("demo-weather").addEventListener("click", () =>
-    publish("enclosure.weather.display", { temp: $("weather-temp").value, img_code: SUN_ICON }));
-  $("demo-date").addEventListener("click", () => publish("ovos.mk1.display_date"));
+    publish("enclosure.weather.display", { temp: $("weather-temp").value, img_code: Number($("weather-code").value) }));
+  $("demo-date").addEventListener("click", () => {
+    const now = new Date();
+    publish("ovos.mk1.display_date", { text: `${DAY_NAMES[now.getDay()]} ${MONTH_NAMES[now.getMonth()]} ${now.getDate()}` });
+  });
   $("demo-time").addEventListener("click", () => {
     const now = new Date();
     const text = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
     publish("ovos.mk1.display_time", { text });
   });
-  $("demo-blink-led").addEventListener("click", () => publish("enclosure.system.blink", { times: 3 }));
   $("demo-stop").addEventListener("click", () => publish("mycroft.stop"));
   const sendSerial = () => {
     window.faceplateSend({ type: "serial", line: $("serial-line").value });
@@ -116,6 +138,7 @@ window.updatePanel = (state) => {
 };
 
 fillIcons();
+fillSwatches();
 bindEyes();
 bindMouth();
 bindDemos();

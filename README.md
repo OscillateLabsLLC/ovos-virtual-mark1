@@ -36,8 +36,9 @@ approximation:
   auto-reset does on a real unit.
 - The GUI's top button sends `mycroft.stop`; the knob sends `volume.up` / `volume.down`.
 
-Not emulated yet: the long-press hardware menu, the hardware self test, and the on-board
-LED's blocking delays (the LED is shown non-blocking instead).
+Not emulated yet: the long-press hardware menu and the hardware self test. The on-board
+LED (`system.blink`) is tracked non-blocking and shown as a status pill; on real hardware
+it is inside the case.
 
 ## Quick start
 
@@ -95,8 +96,14 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
   on, off, reset, fill percentage, and volume.
 - **Mouth**: scrolling text, a viseme shape, a stock icon from `ovos-mark1-utils`, and the
   talk, listen, think, smile, and reset animations.
-- **Demos**: `speak` an utterance through TTS, the weather layout, date and time, the
-  on-board LED, and `mycroft.stop`.
+- **Demos**: `speak` an utterance through TTS, the weather layout with a sky condition,
+  date, time, and `mycroft.stop`.
+
+Two plugin behaviours to know about. The date and time displays switch mouth animations
+off while they are up (ten and five seconds) and the plugin blocks for that long, so
+talk, listen and think are ignored meanwhile; the "Re-enable animations" button publishes
+`enclosure.mouth.events.activate` if they get stuck. And `enclosure.mouth.smile` does
+nothing on any Mark 1: firmware 1.4.2 has no smile handler, its bitmap is commented out.
 - **Raw serial**: a line such as `eyes.look=l` fed straight to the virtual Arduino,
   bypassing the bus. Useful when OVOS is not running.
 
