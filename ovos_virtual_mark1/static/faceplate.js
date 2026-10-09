@@ -171,11 +171,17 @@ knob.addEventListener("wheel", (e) => {
 document.getElementById("button").addEventListener("click", pressButton);
 document.getElementById("knob-up").addEventListener("click", () => turnKnob(true));
 document.getElementById("knob-down").addEventListener("click", () => turnKnob(false));
+// Keyboard shortcuts apply only when nothing editable has focus: typing in the
+// panel's inputs must keep its spaces and arrow keys.
+const EDITABLE_TAGS = new Set(["INPUT", "TEXTAREA", "SELECT", "BUTTON"]);
 document.addEventListener("keydown", (e) => {
-  if (e.target.tagName === "BUTTON" && e.key === " ") return;
+  if (EDITABLE_TAGS.has(e.target.tagName) || e.target.isContentEditable) return;
   if (e.key === " ") { e.preventDefault(); pressButton(); }
   if (e.key === "ArrowUp" || e.key === "ArrowRight") turnKnob(true);
   if (e.key === "ArrowDown" || e.key === "ArrowLeft") turnKnob(false);
+});
+knob.addEventListener("keydown", (e) => {
+  if (e.key === " " || e.key === "Enter") { e.preventDefault(); pressButton(); }
 });
 
 render({ mouth: Array(MOUTH_ROWS).fill("0".repeat(MOUTH_COLS)), eyes: Array(24).fill([0, 0, 0]), brightness: 30 });
