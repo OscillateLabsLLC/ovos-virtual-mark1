@@ -56,6 +56,8 @@
           <button id="eye-reset">Reset</button>
           <label>Fill % <input type="number" id="eye-fill" min="0" max="100" value="50" step="10"></label>
           <label>Volume <input type="number" id="eye-volume" min="0" max="11" value="6"></label>
+          <label>Pixel <input type="number" id="eye-pixel" min="0" max="23" value="0"></label>
+          <button id="eye-setpixel" title="Sets one of the 24 eye LEDs to the colour picked above (enclosure.eyes.setpixel)">Set pixel</button>
         </div>
       </fieldset>
 
@@ -77,6 +79,7 @@
           <button id="mouth-think">Think</button>
           <button id="mouth-reset">Reset</button>
           <button id="mouth-events" title="Date and time displays switch mouth animations off; this switches them back on">Re-enable animations</button>
+          <button id="mouth-events-off" title="Stops talk/listen animations following speech and recording (enclosure.mouth.events.deactivate)">Disable animations</button>
         </div>
       </fieldset>
 
@@ -100,6 +103,20 @@
           <button id="demo-date" title="Shows today's date for ten seconds; mouth animations are off meanwhile">Date</button>
           <button id="demo-time" title="Shows the time for five seconds; mouth animations are off meanwhile">Time</button>
           <button id="demo-stop">Stop</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>System and lifecycle</legend>
+        <div class="row">
+          <button id="sys-sleep" title="recognizer_loop:sleep &rarr; eyes dim in steps, then look down">Sleep</button>
+          <button id="sys-wake" title="mycroft.awoken &rarr; eyes reset, blink, brightness restored">Wake</button>
+          <button id="sys-no-internet" title="enclosure.notify.no_internet &rarr; warning icon">No internet</button>
+          <button id="sys-reset" title="enclosure.reset &rarr; eyes and mouth back to the started state">Enclosure reset</button>
+          <button id="sys-mute" title="enclosure.system.mute &rarr; the board LED comes on (muted pill)">Mute</button>
+          <button id="sys-unmute" title="enclosure.system.unmute">Unmute</button>
+          <label>Blinks <input type="number" id="sys-blink-times" min="1" max="10" value="3"></label>
+          <button id="sys-blink" title="enclosure.system.blink &rarr; the board LED flashes (LED pill)">Blink LED</button>
         </div>
       </fieldset>
 

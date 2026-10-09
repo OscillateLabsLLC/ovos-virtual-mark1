@@ -95,7 +95,7 @@ Below the faceplate the page has a control panel. Every control publishes a mess
 the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a skill:
 
 - **Eyes**: colour, level (brightness), blink, narrow, look with a side, spin, timed spin,
-  on, off, reset, fill percentage, and volume.
+  on, off, reset, fill percentage, volume, and setting a single pixel to the picked colour.
 - **Mouth**: scrolling text, the seven viseme shapes, a stock icon from `ovos-mark1-utils`,
   and the talk, listen, think, and reset animations. The firmware ignores a viseme while
   text or an icon is showing, so the viseme buttons reset the mouth first in that case.
@@ -103,11 +103,18 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
   date, time, and `mycroft.stop`. "Weather (direct)" sends the same display straight to
   the virtual Arduino with the classic 8x8 icon, because the plugin's own weather path
   sends an icon too large for the firmware (ovos-PHAL-plugin-mk1 issue #55).
+- **System and lifecycle**: the messages core and the listener emit around the
+  enclosure rather than at it. Sleep (`recognizer_loop:sleep`) dims the eyes in steps and
+  looks down, Wake (`mycroft.awoken`) resets, blinks and restores the level, No internet
+  shows the warning icon, Enclosure reset restores eyes and mouth, Mute and Unmute drive
+  the board LED, and Blink LED flashes it a chosen number of times. Publishing these
+  only animates the faceplate; they do not put the listener to sleep or wake it.
 
 Two plugin behaviours to know about. The date and time displays switch mouth animations
 off while they are up (ten and five seconds) and the plugin blocks for that long, so
 talk, listen and think are ignored meanwhile; the "Re-enable animations" button publishes
-`enclosure.mouth.events.activate` if they get stuck. And `enclosure.mouth.smile` does
+`enclosure.mouth.events.activate` if they get stuck, and "Disable animations" publishes
+the deactivate counterpart. And `enclosure.mouth.smile` does
 nothing on any Mark 1: firmware 1.4.2 has no smile handler, its bitmap is commented out.
 - **Raw serial**: a line such as `eyes.look=l` fed straight to the virtual Arduino,
   bypassing the bus. Useful when OVOS is not running.

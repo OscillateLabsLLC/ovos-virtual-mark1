@@ -12,6 +12,13 @@ from ovos_virtual_mark1.bus import BusLink
 
 LOG = logging.getLogger(__name__)
 STATIC_DIR = Path(__file__).parent / "static"
+
+
+async def _no_cache(_request: web.Request, response: web.StreamResponse) -> None:
+    """Browsers otherwise reuse static files heuristically, so a reload after a GUI change shows stale JS."""
+    response.headers["Cache-Control"] = "no-cache"
+
+
 StateProvider = Callable[[], dict]
 
 
@@ -35,6 +42,7 @@ class WebServer:
         self.app = web.Application()
         self.app.add_routes([web.get("/", self._index), web.get("/state", self._state), web.get("/ws", self._websocket)])
         self.app.router.add_static("/static/", STATIC_DIR)
+        self.app.on_response_prepare.append(_no_cache)
 
     async def start(self) -> None:
         self._runner = web.AppRunner(self.app)

@@ -94,6 +94,7 @@ function bindEyes() {
     "eye-on": () => publish("enclosure.eyes.on"),
     "eye-off": () => publish("enclosure.eyes.off"),
     "eye-reset": () => publish("enclosure.eyes.reset"),
+    "eye-setpixel": () => publish("enclosure.eyes.setpixel", { idx: Number($("eye-pixel").value), ...hexToRgb($("eye-color").value) }),
   };
   for (const [id, fn] of Object.entries(actions)) $(id).addEventListener("click", fn);
 }
@@ -127,6 +128,7 @@ function bindMouth() {
     "mouth-think": () => publish("enclosure.mouth.think"),
     "mouth-reset": () => publish("enclosure.mouth.reset"),
     "mouth-events": () => publish("enclosure.mouth.events.activate"),
+    "mouth-events-off": () => publish("enclosure.mouth.events.deactivate"),
   };
   for (const [id, fn] of Object.entries(actions)) $(id).addEventListener("click", fn);
 }
@@ -161,6 +163,20 @@ function bindDemos() {
   $("serial-line").addEventListener("keydown", (e) => { if (e.key === "Enter") sendSerial(); });
 }
 
+// Lifecycle messages that core, the listener, and skills emit; the plugin turns each into a serial sequence.
+function bindSystem() {
+  const actions = {
+    "sys-sleep": () => publish("recognizer_loop:sleep"),
+    "sys-wake": () => publish("mycroft.awoken"),
+    "sys-no-internet": () => publish("enclosure.notify.no_internet"),
+    "sys-reset": () => publish("enclosure.reset"),
+    "sys-mute": () => publish("enclosure.system.mute"),
+    "sys-unmute": () => publish("enclosure.system.unmute"),
+    "sys-blink": () => publish("enclosure.system.blink", { times: Number($("sys-blink-times").value) }),
+  };
+  for (const [id, fn] of Object.entries(actions)) $(id).addEventListener("click", fn);
+}
+
 window.updatePanel = (state) => {
   mouthState = state.mouth_state;
   const bus = $("bus");
@@ -174,3 +190,4 @@ fillSwatches();
 bindEyes();
 bindMouth();
 bindDemos();
+bindSystem();

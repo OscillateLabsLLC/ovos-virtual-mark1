@@ -44,3 +44,11 @@ async def test_websocket_receives_state_and_sends_inputs(client):
 def test_cli_defaults():
     args = build_parser().parse_args([])
     assert args.serial_port == 5555 and args.http_port == 8765 and args.host == "127.0.0.1"
+
+
+async def test_responses_forbid_heuristic_caching(client):
+    _faceplate, http = client
+    for path in ("/", "/static/panel.js"):
+        response = await http.get(path)
+        assert response.status == 200
+        assert response.headers["Cache-Control"] == "no-cache", path
