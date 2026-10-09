@@ -24,6 +24,11 @@ const SWATCHES = {
   "OVOS blue": "#0000ff", "Mark 1 tan": "#706569", White: "#ffffff", Green: "#00c850",
   Amber: "#ffa000", Red: "#ff2020", Purple: "#a000ff", Cyan: "#00d0ff",
 };
+// Classic 8x8 Mark 1 weather icons, indexed by the plugin's condition code.
+const WEATHER_ICONS = ["IICEIBMDNLMDIBCEAA", "IIEEGBGDHLHDHBGEEA", "IIIBMDMDODODODMDIB", "IIMAOJOFPBPJPFOBMA",
+  "IIMIOFOBPFPDPJOFMA", "IIAAIIMEODLBJAAAAA", "IIJEKCMBPHMBKCJEAA", "IIABIBIBIJIJJGJAGA"];
+const RESET_SETTLE_MS = 60;
+
 const DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 const MONTH_NAMES = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
@@ -112,6 +117,12 @@ function bindDemos() {
   $("speak-text").addEventListener("keydown", (e) => { if (e.key === "Enter") speak(); });
   $("demo-weather").addEventListener("click", () =>
     publish("enclosure.weather.display", { temp: $("weather-temp").value, img_code: Number($("weather-code").value) }));
+  $("demo-weather-direct").addEventListener("click", () => {
+    const line = `weather.display=${$("weather-temp").value},x=2,${WEATHER_ICONS[Number($("weather-code").value)]}`;
+    // A reset first, then a tick, so the firmware's post-animation reset cannot wipe the display.
+    window.faceplateSend({ type: "serial", line: "mouth.reset" });
+    setTimeout(() => window.faceplateSend({ type: "serial", line }), RESET_SETTLE_MS);
+  });
   $("demo-date").addEventListener("click", () => {
     const now = new Date();
     publish("ovos.mk1.display_date", { text: `${DAY_NAMES[now.getDay()]} ${MONTH_NAMES[now.getMonth()]} ${now.getDate()}` });

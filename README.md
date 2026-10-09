@@ -97,7 +97,9 @@ the OVOS messagebus, so the real PHAL plugin reacts exactly as it would to a ski
 - **Mouth**: scrolling text, a viseme shape, a stock icon from `ovos-mark1-utils`, and the
   talk, listen, think, smile, and reset animations.
 - **Demos**: `speak` an utterance through TTS, the weather layout with a sky condition,
-  date, time, and `mycroft.stop`.
+  date, time, and `mycroft.stop`. "Weather (direct)" sends the same display straight to
+  the virtual Arduino with the classic 8x8 icon, because the plugin's own weather path
+  sends an icon too large for the firmware (ovos-PHAL-plugin-mk1 issue #55).
 
 Two plugin behaviours to know about. The date and time displays switch mouth animations
 off while they are up (ten and five seconds) and the plugin blocks for that long, so
