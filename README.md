@@ -157,6 +157,12 @@ git clone https://github.com/MycroftAI/enclosure-mark1
 just port-tables ./enclosure-mark1
 ```
 
+## Credits
+
+The faceplate's vector styling, the silver rim, dark glass, mic grille, ring tracks and
+LED glow, follows Timon's Mark 1 artwork for the OVOS installer wizard, used with thanks.
+The firmware tables are derived from Mycroft AI's Apache-2.0 licensed enclosure firmware.
+
 ## License
 
 Apache-2.0. The fonts and mouth bitmaps are derived from the Apache-2.0 licensed

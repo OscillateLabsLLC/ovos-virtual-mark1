@@ -8,19 +8,9 @@
 </head>
 <body>
   <main>
-    <section class="mark1" aria-label="Mycroft Mark 1">
-      <div class="knob" id="knob" role="button" tabindex="0"
-           title="Knob: click to press the button, scroll or arrow keys for volume, space to press">
-        <span class="knob-face"></span>
-      </div>
-      <div class="body">
-        <div class="window">
-          <canvas id="faceplate" width="672" height="160" aria-label="Mark 1 faceplate"></canvas>
-          <div class="acrylic"></div>
-        </div>
-      </div>
-      <div class="foot foot-left"></div>
-      <div class="foot foot-right"></div>
+    <section class="mark1-stage" aria-label="Mycroft Mark 1">
+      <svg id="faceplate" class="mark1-face" role="img" aria-label="Mark 1 faceplate"
+           title="Click the face to press the button, scroll over it for volume"></svg>
     </section>
 
     <section class="status">
@@ -34,7 +24,7 @@
       <span id="firmware" class="pill">fw</span>
       <span class="spacer"></span>
       <button id="knob-down" class="mini" aria-label="Volume down">−</button>
-      <button id="button" class="mini" aria-label="Press the button">●</button>
+      <button id="button" class="mini" aria-label="Press the button" title="Press the button (space)">●</button>
       <button id="knob-up" class="mini" aria-label="Volume up">+</button>
     </section>
     <pre id="last-command" class="last-command"></pre>
