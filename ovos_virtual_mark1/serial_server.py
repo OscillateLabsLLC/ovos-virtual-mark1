@@ -7,13 +7,20 @@ from ovos_virtual_mark1.arduino import VirtualArduino
 
 LOG = logging.getLogger(__name__)
 LINE_END = "\r\n"
+# A real Pro Mini resets on DTR when the port opens and its bootloader pauses before
+# the sketch prints the banner. pyserial's socket transport also discards anything
+# that arrives during open(), so an instant banner would be lost on a fast host.
+BOOT_DELAY_S = 0.25
 
 
 class SerialServer:
-    def __init__(self, arduino: VirtualArduino, host: str = "127.0.0.1", port: int = 5555) -> None:
+    def __init__(
+        self, arduino: VirtualArduino, host: str = "127.0.0.1", port: int = 5555, boot_delay_s: float = BOOT_DELAY_S
+    ) -> None:
         self.arduino = arduino
         self.host = host
         self.port = port
+        self.boot_delay_s = boot_delay_s
         self._server: asyncio.AbstractServer | None = None
         self._writers: set[asyncio.StreamWriter] = set()
 
@@ -50,9 +57,10 @@ class SerialServer:
         peer = writer.get_extra_info("peername")
         LOG.info("serial client connected: %s", peer)
         self._writers.add(writer)
-        self.arduino.on_connect()
-        await self.flush()
         try:
+            await asyncio.sleep(self.boot_delay_s)
+            self.arduino.on_connect()
+            await self.flush()
             while raw := await reader.readline():
                 self.arduino.handle_line(raw.decode("utf-8", errors="replace").rstrip(LINE_END))
                 await self.flush()

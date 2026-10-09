@@ -32,8 +32,10 @@ approximation:
   including its quirks such as the boot spin emptying the ring before a single pixel
   chases around it, and `mouth.faketalk` resting on frame 0.
 - Every received line is echoed back as `Command: ...`, `version` is answered with
-  `Mycroft Mark 1 v1.4.2`, and a connect sends the boot banner the way the Arduino's
-  auto-reset does on a real unit.
+  `Mycroft Mark 1 v1.4.2`, and a connect sends the boot banner a quarter second later,
+  the way the Arduino's DTR auto-reset and bootloader pause do on a real unit. The delay
+  also matters because pyserial's socket transport discards anything received while the
+  port is being opened.
 - The GUI's top button sends `mycroft.stop`; the knob sends `volume.up` / `volume.down`.
 
 Not emulated yet: the long-press hardware menu and the hardware self test. The on-board
