@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-virtual-mark1"
+description = "Virtual Mycroft Mark 1 faceplate for OVOS: a software Arduino plus a browser GUI"
+readme = "README.md"
+authors = [{ name = "Mike Gray", email = "mike@oscillatelabs.net" }]
+license = { text = "Apache-2.0" }
+keywords = ["ovos", "mycroft", "mark1", "faceplate", "emulator", "voice", "assistant"]
+requires-python = ">=3.10"
+dynamic = ["version"]
+dependencies = [
+    "aiohttp>=3.9",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "pyserial",
+    "ovos-mark1-utils",
+    "ruff",
+]
+
+[project.scripts]
+ovos-virtual-mark1 = "ovos_virtual_mark1.app:main"
+
+[project.urls]
+Homepage = "https://github.com/OscillateLabsLLC/ovos-virtual-mark1"
+Repository = "https://github.com/OscillateLabsLLC/ovos-virtual-mark1"
+
+[tool.setuptools]
+packages = ["ovos_virtual_mark1"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "ovos_virtual_mark1.version.__version__" }
+
+[tool.setuptools.package-data]
+ovos_virtual_mark1 = ["static/*"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=ovos_virtual_mark1 --cov-report=term-missing"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 130
+target-version = "py310"
+
+[tool.uv]
+package = true
